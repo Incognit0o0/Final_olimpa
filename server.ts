@@ -63,7 +63,7 @@ app.post("/api/auth/login", (req: Request, res: Response) => {
   res.json({ user, message: "Вход успешно выполнен" });
 });
 
-// Corporate Directory of 4 mock employees
+// Corporate Directory of mock employees (pre-seeded database entries)
 const CORPORATE_DIRECTORY = [
   {
     email: "sidorov@stoloto.ru",
@@ -92,6 +92,55 @@ const CORPORATE_DIRECTORY = [
     city: "Екатеринбург",
     department: "Региональный офис продаж",
     position: "Менеджер"
+  },
+  {
+    email: "fedorov@stoloto.ru",
+    name: "Фёдоров Фёдор Сергеевич",
+    city: "Москва",
+    department: "Департамент связей с общественностью",
+    position: "Пресс-секретарь"
+  },
+  {
+    email: "smirnov@stoloto.ru",
+    name: "Смирнов Михаил Юрьевич",
+    city: "Казань",
+    department: "Отдел регионального развития",
+    position: "Ведущий специалист"
+  },
+  {
+    email: "kuznetsova@stoloto.ru",
+    name: "Кузнецова Наталья Александровна",
+    city: "Москва",
+    department: "Управление по работе с персоналом",
+    position: "HR-менеджер"
+  },
+  {
+    email: "popov@stoloto.ru",
+    name: "Попов Андрей Евгеньевич",
+    city: "Новосибирск",
+    department: "Департамент розничной сети",
+    position: "Территориальный менеджер"
+  },
+  {
+    email: "vasiliev@stoloto.ru",
+    name: "Васильев Алексей Игоревич",
+    city: "Москва",
+    department: "Департамент аналитики и больших данных",
+    position: "Senior Data Scientist"
+  },
+  {
+    email: "sokolov@stoloto.ru",
+    name: "Соколов Сергей Владимирович",
+    city: "Санкт-Петербург",
+    department: "Служба логистики и снабжения",
+    position: "Ведущий инженер"
+  },
+  {
+    email: "novikova@stoloto.ru",
+    name: "Новикова Ольга Ивановна",
+    city: "Краснодар",
+    department: "Отдел маркетинга Южного региона",
+    position: "Главный бренд-менеджер"
   }
 ];
 

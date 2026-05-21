@@ -522,16 +522,6 @@ export default function LandingPage({ onLoginSuccess, onRefreshAll }: LandingPag
                   ) : (
                     // Simple form for Stoloto employee
                     <div className="space-y-4 animated fadeIn">
-                      <div className="bg-amber-50 rounded-xl p-3 border border-amber-200 text-xs text-amber-800 leading-normal">
-                        <strong>Тестовые сотрудники Столото:</strong> Вся информация о сотруднике автоматически подтягивается из базы данных по его email. Вы можете протестировать регистрацию, используя один из следующих ящиков:
-                        <ul className="list-disc list-inside mt-1 font-mono font-semibold">
-                          <li>sidorov@stoloto.ru</li>
-                          <li>kozlov@stoloto.ru</li>
-                          <li>semenova@stoloto.ru</li>
-                          <li>morozov@stoloto.ru</li>
-                        </ul>
-                        <div className="mt-1 text-[10px]">При вводе любого другого email система вежливо предложит зарегистрироваться как обычный внешний пользователь.</div>
-                      </div>
 
                       <div>
                         <label className="block text-xs font-bold text-neutral-700 mb-1">
