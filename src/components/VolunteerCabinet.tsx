@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { api } from "../api.js";
 import { UserProfile, VolunteerTask, TaskApplication, ApplicationStatus } from "../types.js";
-import { Search, MapPin, Calendar, Clock, Sparkles, Filter, Award, ChevronRight, HelpCircle, X, ShieldAlert, Check, Phone, Mail, User, Building, ChevronDown, List, Globe, Heart } from "lucide-react";
+import { Search, MapPin, Calendar, Clock, Sparkles, Filter, Award, ChevronRight, HelpCircle, X, ShieldAlert, Check, Phone, Mail, User, Building, ChevronDown, List, Globe, Heart, FolderHeart, Users, Zap, Briefcase } from "lucide-react";
 
 interface VolunteerCabinetProps {
   user: UserProfile;
@@ -1184,8 +1184,9 @@ export default function VolunteerCabinet({
 
             {/* 1. Направление помощи */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                📁 Направление помощи
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <FolderHeart className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                Направление помощи
               </label>
               <select
                 value={categoryFilter}
@@ -1205,8 +1206,9 @@ export default function VolunteerCabinet({
 
             {/* 2. Фонд */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                🏢 Благотворительный фонд
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <Building className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                Благотворительный фонд
               </label>
               <select
                 value={fundFilter}
@@ -1222,8 +1224,9 @@ export default function VolunteerCabinet({
 
             {/* 3. Дедлайн */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                📅 Дедлайн набора (не позднее)
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <Calendar className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+                Дедлайн набора (не позднее)
               </label>
               <input
                 type="date"
@@ -1235,14 +1238,15 @@ export default function VolunteerCabinet({
 
             {/* 4. Формат участия */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                📍 Формат проведения
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <Globe className="h-3.5 w-3.5 text-[#D70066] shrink-0" />
+                Формат проведения
               </label>
               <div className="grid grid-cols-3 lg:grid-cols-1 gap-1.5 pt-0.5 font-sans">
                 {[
-                  { value: "", label: "Все форматы" },
-                  { value: "online", label: "💻 Онлайн" },
-                  { value: "offline", label: "📍 Офлайн" }
+                  { value: "", label: "Все форматы", icon: <Globe className="h-3 w-3 shrink-0" /> },
+                  { value: "online", label: "Онлайн", icon: <Globe className="h-3 w-3 shrink-0" /> },
+                  { value: "offline", label: "Офлайн", icon: <MapPin className="h-3 w-3 shrink-0" /> }
                 ].map(fmt => {
                   const active = formatFilter === fmt.value;
                   return (
@@ -1250,13 +1254,14 @@ export default function VolunteerCabinet({
                       key={fmt.value}
                       type="button"
                       onClick={() => setFormatFilter(fmt.value)}
-                      className={`text-[11px] py-1.5 px-2 text-center lg:text-left font-bold rounded-lg transition-all border ${
+                      className={`text-[11px] py-1.5 px-2 font-bold rounded-lg transition-all border flex items-center justify-center lg:justify-start gap-1.5 ${
                         active
                           ? "bg-[#FFE300] text-black border-[#FFE300] shadow-xs font-extrabold"
                           : "bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50"
                       }`}
                     >
-                      {fmt.label}
+                      {fmt.icon}
+                      <span>{fmt.label}</span>
                     </button>
                   );
                 })}
@@ -1265,8 +1270,9 @@ export default function VolunteerCabinet({
 
             {/* 5. Количество свободных мест */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                👥 Свободных мест (не менее)
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <Users className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                Свободных мест (не менее)
               </label>
               <input
                 type="number"
@@ -1280,8 +1286,9 @@ export default function VolunteerCabinet({
 
             {/* 6. Текущий статус набора */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                ⚡ Текущий статус набора
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <Zap className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                Текущий статус набора
               </label>
               <select
                 value={recruitmentStatusFilter}
@@ -1296,8 +1303,9 @@ export default function VolunteerCabinet({
 
             {/* 7. Город проведения */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                📍 Город проведения
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <MapPin className="h-3.5 w-3.5 text-[#D70066] shrink-0" />
+                Город проведения
               </label>
               <input
                 type="text"
@@ -1310,8 +1318,9 @@ export default function VolunteerCabinet({
 
             {/* 8. Профессиональные навыки */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                💼 Требования / Проф. навыки
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                <Briefcase className="h-3.5 w-3.5 text-[#D70066] shrink-0" />
+                Требования / Проф. навыки
               </label>
               <input
                 type="text"
@@ -1425,10 +1434,11 @@ export default function VolunteerCabinet({
                                 e.stopPropagation();
                                 openFundModal(task.fundId || task.fundName);
                               }}
-                              className="text-[10.5px] text-emerald-600 hover:text-emerald-850 font-extrabold uppercase tracking-wider mt-1 block hover:underline transition text-left cursor-pointer"
+                              className="text-[10.5px] text-emerald-600 hover:text-emerald-850 font-extrabold uppercase tracking-wider mt-1 flex items-center gap-1 hover:underline transition text-left cursor-pointer"
                               title="Посмотреть подробную информацию о фонде"
                             >
-                              🏢 {task.fundName}
+                              <Building className="h-3 w-3 text-emerald-600 shrink-0" />
+                              <span>{task.fundName}</span>
                             </button>
                           </div>
                         </div>
@@ -1457,7 +1467,7 @@ export default function VolunteerCabinet({
                           <div className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                              Места: {task.joinedParticipants} из {task.maxParticipants}
+                              Свободно мест: {task.maxParticipants - task.joinedParticipants} из {task.maxParticipants}
                             </span>
                           </div>
                           
@@ -1901,13 +1911,19 @@ export default function VolunteerCabinet({
 
                         <div className="grid grid-cols-2 gap-3.5 font-sans pt-1">
                           <div>
-                            <span className="text-neutral-400 block text-[9px] uppercase font-bold tracking-wider">📅 Регистрация</span>
+                            <span className="text-neutral-400 flex items-center gap-1 text-[9px] uppercase font-bold tracking-wider">
+                              <Calendar className="h-3 w-3 text-amber-700 shrink-0" />
+                              Регистрация
+                            </span>
                             <span className="text-amber-800 font-bold font-mono text-[10.5px]">
                               с {selectedTask.regStart || "2026-05-20"} по {selectedTask.deadline}
                             </span>
                           </div>
                           <div>
-                            <span className="text-neutral-400 block text-[9px] uppercase font-bold tracking-wider">⏰ Время выполнения</span>
+                            <span className="text-neutral-400 flex items-center gap-1 text-[9px] uppercase font-bold tracking-wider">
+                              <Clock className="h-3 w-3 text-emerald-700 shrink-0" />
+                              Время выполнения
+                            </span>
                             <span className="text-emerald-800 font-bold font-mono text-[10.5px]">
                               {selectedTask.eventTime || "12:00 - 16:00"} {selectedTask.eventDate ? `(${selectedTask.eventDate})` : ""}
                             </span>
@@ -1915,7 +1931,10 @@ export default function VolunteerCabinet({
                         </div>
 
                         <div className="pt-0.5">
-                          <span className="text-neutral-400 block text-[9px] uppercase font-bold tracking-wider">📍 Место проведения</span>
+                          <span className="text-neutral-400 flex items-center gap-1 text-[9px] uppercase font-bold tracking-wider">
+                            <MapPin className="h-3 w-3 text-[#D70066] shrink-0" />
+                            Место проведения
+                          </span>
                           <span className="text-neutral-900 font-semibold text-xs flex items-center gap-1">
                             <MapPin className="h-3.5 w-3.5 text-neutral-600" />
                             {selectedTask.location} ({selectedTask.city})

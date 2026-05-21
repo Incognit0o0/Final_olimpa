@@ -361,10 +361,12 @@ app.get("/api/funds/:idOrName", (req: Request, res: Response) => {
 
   const fundId = fund.id;
   const allTasks = DBManager.getTasks().filter(t => t.fundId === fundId || t.fundName === fund.name);
-  const activeTasks = allTasks.filter(t => t.status === TaskStatus.PUBLISHED);
-  const completedTasks = allTasks.filter(t => t.status === TaskStatus.COMPLETED);
+  // Filter for tasks that passed moderation (either published or completed)
+  const moderatedTasks = allTasks.filter(t => t.status === TaskStatus.PUBLISHED || t.status === TaskStatus.COMPLETED);
+  const activeTasks = moderatedTasks.filter(t => t.status === TaskStatus.PUBLISHED);
+  const completedTasks = moderatedTasks.filter(t => t.status === TaskStatus.COMPLETED);
 
-  const applications = DBManager.getApplications().filter(a => allTasks.some(t => t.id === a.taskId));
+  const applications = DBManager.getApplications().filter(a => moderatedTasks.some(t => t.id === a.taskId));
   const uniqueVolunteersCount = new Set(applications.map(a => a.volunteerId)).size;
   const totalAwardedHours = applications
     .filter(a => a.status === ApplicationStatus.COMPLETED)
@@ -385,13 +387,13 @@ app.get("/api/funds/:idOrName", (req: Request, res: Response) => {
       contactPosition: fund.contactPosition || "",
     },
     stats: {
-      totalTasks: allTasks.length,
+      totalTasks: moderatedTasks.length,
       publishedTasksCount: activeTasks.length,
       completedTasksCount: completedTasks.length,
       volunteersCount: uniqueVolunteersCount,
       totalHoursDistributed: totalAwardedHours || 0,
     },
-    tasks: allTasks.map(t => ({
+    tasks: moderatedTasks.map(t => ({
       id: t.id,
       title: t.title,
       category: t.category,

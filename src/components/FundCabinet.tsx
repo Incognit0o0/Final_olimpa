@@ -102,6 +102,8 @@ export default function FundCabinet({
     isOpen: boolean;
     title: string;
     message: string;
+    confirmText?: string;
+    cancelText?: string;
     onConfirm: () => void;
   } | null>(null);
 
@@ -334,19 +336,45 @@ export default function FundCabinet({
   };
 
   const handleCloseTask = async (taskId: string) => {
-    setConfirmModal({
-      isOpen: true,
-      title: "Завершить проект",
-      message: "Проект успешно выполнен? Это сделает его недоступным для набора волонтёров.",
-      onConfirm: async () => {
-        try {
-          await api.updateTaskStatus(taskId, TaskStatus.COMPLETED);
-          onRefreshAll();
-        } catch (err: any) {
-          alert(err.message);
+    // Find active accepted volunteers whose participation is confirmed/active but hours are not yet credited
+    const uncreditedVolunteers = applications.filter(
+      a => a.taskId === taskId && a.status === ApplicationStatus.ACCEPTED
+    );
+
+    if (uncreditedVolunteers.length > 0) {
+      const names = uncreditedVolunteers.map(a => a.volunteerName).join(", ");
+      setConfirmModal({
+        isOpen: true,
+        title: "⚠️ Незачисленные часы волонтёров",
+        message: `В этом проекте остались назначенные участники без зачисления часов: ${names}. Возможно, волонтёр не выполнил задание, либо вы по ошибке завершаете проект без подведения итогов. Вы действительно хотите закрыть проект? Внесенные изменения нельзя будет отменить, а начислить часы после закрытия будет невозможно.`,
+        confirmText: "Закрыть проект",
+        cancelText: "Отменить закрытие",
+        onConfirm: async () => {
+          try {
+            await api.updateTaskStatus(taskId, TaskStatus.COMPLETED);
+            onRefreshAll();
+          } catch (err: any) {
+            alert(err.message);
+          }
         }
-      }
-    });
+      });
+    } else {
+      setConfirmModal({
+        isOpen: true,
+        title: "Завершить проект",
+        message: "Проект успешно выполнен? Это сделает его недоступным для набора волонтёров.",
+        confirmText: "Завершить проект",
+        cancelText: "Отмена",
+        onConfirm: async () => {
+          try {
+            await api.updateTaskStatus(taskId, TaskStatus.COMPLETED);
+            onRefreshAll();
+          } catch (err: any) {
+            alert(err.message);
+          }
+        }
+      });
+    }
   };
 
   const handleApplicantStatus = async (appId: string, status: ApplicationStatus) => {
@@ -774,7 +802,7 @@ export default function FundCabinet({
                               {t.format === "online" ? "💻 Онлайн" : `📍 Офлайн (${t.city})`}
                             </td>
                             <td className="p-3 font-semibold font-mono text-[11px] text-neutral-850">
-                              {t.joinedParticipants} из {t.maxParticipants}
+                              {t.maxParticipants - t.joinedParticipants} из {t.maxParticipants} (свободно)
                             </td>
                             <td className="p-3 font-mono font-bold text-neutral-950 text-xs">
                               {t.hoursEstimation} ч.
@@ -982,7 +1010,7 @@ export default function FundCabinet({
 
                       <div>
                         <label className="block text-xs font-bold text-neutral-700 mb-1">
-                          ESG Часы уважения (оценка на человека) *
+                          Волонтерские часы (оценка на человека) *
                         </label>
                         <input
                           type="number"
@@ -1681,7 +1709,7 @@ export default function FundCabinet({
                 onClick={() => setConfirmModal(null)}
                 className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs px-4 py-2 rounded-xl transition cursor-pointer"
               >
-                Отмена
+                {confirmModal.cancelText || "Отмена"}
               </button>
               <button
                 onClick={() => {
@@ -1690,7 +1718,7 @@ export default function FundCabinet({
                 }}
                 className="bg-[#FFE300] hover:bg-amber-400 text-black font-extrabold text-xs px-4 py-2 rounded-xl transition cursor-pointer"
               >
-                Подтвердить
+                {confirmModal.confirmText || "Подтвердить"}
               </button>
             </div>
           </div>
