@@ -88,7 +88,7 @@ export default function LandingPage({ onLoginSuccess, onRefreshAll }: LandingPag
     reader.readAsDataURL(file);
   };
 
-  const [activeScenarioId, setActiveScenarioId] = useState<number | null>(null);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,21 +108,7 @@ export default function LandingPage({ onLoginSuccess, onRefreshAll }: LandingPag
     }
   };
 
-  const loginAsPreset = async (email: string, scenarioId: number) => {
-    setErrorMsg("");
-    setSuccessMsg("");
-    setActiveScenarioId(scenarioId);
-    try {
-      const data = await api.login(email);
-      setSuccessMsg(`Успешный вход в роли: ${data.user.name}`);
-      setTimeout(() => {
-        onLoginSuccess(data.user);
-        onRefreshAll();
-      }, 500);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Предустановленный аккаунт не найден.");
-    }
-  };
+
 
   const handleRegisterVolunteer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,88 +222,7 @@ export default function LandingPage({ onLoginSuccess, onRefreshAll }: LandingPag
     }
   };
 
-  const juryScenarios = [
-    {
-      id: 1,
-      step: "Шаг 1",
-      title: "Регистрация волонтёра",
-      desc: "Иван регистрируется в системе Столото с почтой @stoloto.ru и получает доступ в личный кабинет.",
-      email: "volunteer@stoloto.ru",
-      role: "Волонтёр"
-    },
-    {
-      id: 2,
-      step: "Шаг 2",
-      title: "Регистрация фонда",
-      desc: "БФ «Подари Свет» регистрируется, загружает Устав и ОГРН. Получает статус ожидания проверки.",
-      email: "fond_help@hope.ru",
-      role: "Новый Фонд"
-    },
-    {
-      id: 3,
-      step: "Шаг 3",
-      title: "Модерация фонда админом",
-      desc: "Администратор проверяет документы фондов и меняет статус заявки на «Одобрен».",
-      email: "admin@stoloto.ru",
-      role: "Администратор"
-    },
-    {
-      id: 4,
-      step: "Шаг 4",
-      title: "Создание задания фондом",
-      desc: "Одобренный фонд создаёт новое задание в ЛК (описание, требования, оценка волонтёрских часов).",
-      email: "fond@nature.ru",
-      role: "Одобренный Фонд"
-    },
-    {
-      id: 5,
-      step: "Шаг 5",
-      title: "Публикация дела в ленту",
-      desc: "Администратор просматривает предложенную фондом задачу и одобряет её, публикуя в ленту.",
-      email: "admin@stoloto.ru",
-      role: "Администратор"
-    },
-    {
-      id: 6,
-      step: "Шаг 6",
-      title: "Фильтрация на витрине",
-      desc: "Волонтёр открывает общую витрину добрых дел и ищет проекты по тегам, городам или формату.",
-      email: "volunteer@stoloto.ru",
-      role: "Волонтёр"
-    },
-    {
-      id: 7,
-      step: "Шаг 7",
-      title: "Подача отклика на дело",
-      desc: "Волонтёр выбирает задачу и нажимает кнопку «Откликнуться на задание». Учитывается лимит мест.",
-      email: "volunteer@stoloto.ru",
-      role: "Волонтёр"
-    },
-    {
-      id: 8,
-      step: "Шаг 8",
-      title: "Подтверждение от фонда",
-      desc: "Представитель фонда одобряет кандидатов, а после акции подтверждает фактическое выполнение.",
-      email: "fond@nature.ru",
-      role: "Одобренный Фонд"
-    },
-    {
-      id: 9,
-      step: "Шаг 9",
-      title: "Начисление часов",
-      desc: "Администратор видит успешные рапорты от фондов и зачисляет подтверждённые часы в профиль.",
-      email: "admin@stoloto.ru",
-      role: "Администратор"
-    },
-    {
-      id: 10,
-      step: "Шаг 10",
-      title: "Выгрузка CSV отчёта",
-      desc: "Администратор скачивает сквозной Excel-отчёт обо всех активностях волонтёров компании Столото.",
-      email: "admin@stoloto.ru",
-      role: "Администратор"
-    }
-  ];
+
 
   return (
     <div id="landing-page-root" className="min-h-screen bg-[#F5F5F5] text-[#333333] flex flex-col font-sans transition-colors duration-200">
@@ -396,49 +301,7 @@ export default function LandingPage({ onLoginSuccess, onRefreshAll }: LandingPag
               </div>
             </div>
 
-            {/* Guidance panel with pre-seeded users for hackathon review */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-3.5">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="h-4.5 w-4.5 text-[#FFE300]" />
-                <h3 className="font-bold text-[#000000] text-[15px]">Руководство верификации: 10 сценариев жюри</h3>
-              </div>
-              <p className="text-[13px] text-neutral-500 mb-1 leading-normal">
-                Ниже представлены 10 базовых этапов хакатона. Кликните по любому шагу для демонстрационного входа под нужным пользователем в один клик!
-              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
-                {juryScenarios.map((sc) => {
-                  return (
-                    <div 
-                      key={sc.id}
-                      onClick={() => loginAsPreset(sc.email, sc.id)}
-                      className="group p-3 rounded-xl border border-neutral-200 hover:border-[#FFE300] bg-neutral-50 hover:bg-yellow-50/40 text-left transition cursor-pointer flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[9px] font-bold bg-[#FFE300] text-black px-1.5 py-0.5 rounded">
-                            {sc.step}
-                          </span>
-                          <span className="text-[9.5px] text-neutral-500 font-medium">
-                            {sc.role}
-                          </span>
-                        </div>
-                        <h4 className="font-bold text-xs text-[#000000]">{sc.title}</h4>
-                        <p className="text-[10.5px] text-neutral-500 mt-1 leading-tight group-hover:text-neutral-700">
-                          {sc.desc}
-                        </p>
-                      </div>
-                      <div className="mt-2 pt-2 border-t border-neutral-200/60 flex items-center justify-between text-[10px] text-neutral-400 font-mono">
-                        <span>{sc.email}</span>
-                        <span className="text-neutral-900 group-hover:text-[#FFD700] flex items-center gap-0.5 font-bold">
-                          <Play className="h-2.5 w-2.5 fill-current" /> Войти
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
           </div>
 

@@ -57,21 +57,7 @@ export default function Footer({ onShowPolicy }: FooterProps) {
                   Политика обработки ПД (ФЗ-152)
                 </button>
               </li>
-              <li>
-                <a 
-                  href="#scenarios" 
-                  onClick={(e) => {
-                    const el = document.getElementById("jury-test-scenarios-tab");
-                    if (el) {
-                      e.preventDefault();
-                      el.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
-                  className="text-neutral-500 hover:text-neutral-900 hover:underline transition-colors font-medium"
-                >
-                  Демонстрационные сценарии
-                </a>
-              </li>
+
               <li>
                 <span className="text-neutral-400 cursor-not-allowed">
                   Регламент волонтёра (PDF) <span className="text-[9px] uppercase font-bold text-neutral-400 ml-1 bg-neutral-100 px-1 rounded">Скоро</span>
