@@ -728,6 +728,119 @@ app.post("/api/tasks/:id/status", (req: Request, res: Response) => {
   res.status(403).json({ error: "У вас нет прав изменять статус этого задания" });
 });
 
+// Update task details (Fund scope)
+app.post("/api/tasks/:id", (req: Request, res: Response) => {
+  const actor = getActor(req);
+  if (!actor || actor.role !== UserRole.FUND) {
+    res.status(403).json({ error: "Только зарегистрированный фонд может редактировать задания" });
+    return;
+  }
+
+  const { id } = req.params;
+  const task = DBManager.getTaskById(id);
+  if (!task) {
+    res.status(404).json({ error: "Задание не найдено" });
+    return;
+  }
+
+  if (task.fundId !== actor.id) {
+    res.status(403).json({ error: "Вы можете редактировать только задания вашего фонда" });
+    return;
+  }
+
+  // Block editing if the task is already published or completed
+  if (task.status === TaskStatus.PUBLISHED || task.status === TaskStatus.COMPLETED) {
+    res.status(400).json({ error: "Нельзя редактировать опубликованное или завершенное задание" });
+    return;
+  }
+
+  const {
+    title,
+    description,
+    category,
+    format,
+    duration,
+    type,
+    city,
+    location,
+    deadline,
+    eventDate,
+    maxParticipants,
+    requirements,
+    hoursEstimation,
+    materials,
+    isDraft,
+    conditions,
+    tags,
+    imageUrl,
+    regStart,
+    eventTime,
+    organizerName,
+    organizerPhone,
+    organizerEmail,
+    vacancies
+  } = req.body;
+
+  if (!title || !description || !category || !format || !duration || !type || !city || !deadline || !eventDate || !maxParticipants || !hoursEstimation) {
+    res.status(400).json({ error: "Пожалуйста, заполните все обязательные поля задания, включая дедлайн и дату выполнения" });
+    return;
+  }
+
+  // Update logic: set appropriate status
+  const updatedStatus = isDraft ? TaskStatus.DRAFT : TaskStatus.PENDING_MODERATION;
+
+  const updatedTaskFields: Partial<VolunteerTask> = {
+    title,
+    description,
+    category,
+    format,
+    duration,
+    type,
+    city,
+    location: location || "Онлайн / Дистанционно",
+    deadline,
+    eventDate,
+    maxParticipants: Number(maxParticipants),
+    requirements: requirements || "Особых требований нет",
+    hoursEstimation: Number(hoursEstimation),
+    materials: materials || "",
+    status: updatedStatus,
+    conditions: Array.isArray(conditions) ? conditions : [],
+    tags: Array.isArray(tags) ? tags : [],
+    imageUrl: imageUrl || "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=500&auto=format&fit=crop&q=80",
+    regStart: regStart || new Date().toISOString().split("T")[0],
+    eventTime: eventTime || "12:00 - 16:00",
+    organizerName: organizerName || actor.contactName || "",
+    organizerPhone: organizerPhone || actor.phone || "",
+    organizerEmail: organizerEmail || actor.email || "",
+    // Reset moderator comment on edit/resubmission
+    moderatorComment: "",
+    vacancies: Array.isArray(vacancies) && vacancies.length > 0 ? vacancies : [
+      {
+        id: "vac_" + Math.random().toString(36).substring(2, 11),
+        name: "Основная помощь",
+        address: location || "Онлайн / Дистанционно",
+        duties: description,
+        conditions: Array.isArray(conditions) ? conditions : [],
+        requirements: (requirements || "Особых требований нет").split(/,\s*/).map(r => r.trim()).filter(Boolean)
+      }
+    ]
+  };
+
+  DBManager.updateTask(id, updatedTaskFields);
+
+  if (!isDraft) {
+    // Notify administrator
+    DBManager.createNotification(
+      "admin",
+      UserRole.ADMIN,
+      `Фонд «${actor.name}» обновил задание «${title}» и повторно отправил его на пре-модерацию.`
+    );
+  }
+
+  res.json({ task: DBManager.getTaskById(id), message: isDraft ? "Изменения успешно сохранены в черновиках" : "Задание успешно обновлено и отправлено на пре-модерацию" });
+});
+
 
 // ==========================================
 // 4. APPLICATIONS (ОТКЛИКИ) ENDPOINTS

@@ -216,6 +216,7 @@ export default function FundCabinet({
   const [requirements, setRequirements] = useState("");
   const [hoursEstimation, setHoursEstimation] = useState(4);
   const [materials, setMaterials] = useState("");
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
   // Event Coordinator Contacts & Image URL
   const [organizerName, setOrganizerName] = useState("");
@@ -280,7 +281,7 @@ export default function FundCabinet({
     }
 
     try {
-      const response = await api.createTask({
+      const taskData = {
         title,
         description,
         category,
@@ -305,9 +306,19 @@ export default function FundCabinet({
         organizerPhone: organizerPhone.trim(),
         organizerEmail: organizerEmail.trim(),
         imageUrl: imageUrl.trim() || undefined,
-      });
+      };
 
-      setSuccessMsg(response.message);
+      let responseMsg = "";
+      if (editingTaskId) {
+        const response = await api.updateTask(editingTaskId, taskData);
+        responseMsg = response.message;
+        setEditingTaskId(null);
+      } else {
+        const response = await api.createTask(taskData);
+        responseMsg = response.message;
+      }
+
+      setSuccessMsg(responseMsg);
       // Reset form
       setTitle("");
       setDescription("");
@@ -331,8 +342,48 @@ export default function FundCabinet({
       setActiveTab("tasks");
       onRefreshAll();
     } catch (err: any) {
-      setErrorMsg(err.message || "Ошибка при создании задания");
+      setErrorMsg(err.message || "Ошибка при сохранении задания");
     }
+  };
+
+  const startEditingTask = (task: VolunteerTask) => {
+    setEditingTaskId(task.id);
+    setTitle(task.title);
+    setDescription(task.description);
+    setCategory(task.category || "Дети");
+    setFormat(task.format || "online");
+    setDuration(task.duration || "one-time");
+    setType(task.type || "standard");
+    setCity(task.city || "Москва");
+    setLocation(task.location || "");
+    setDeadline(task.deadline || "");
+    setEventDate(task.eventDate || "");
+    setMaxParticipants(task.maxParticipants || 1);
+    setHoursEstimation(task.hoursEstimation || 4);
+    setMaterials(task.materials || "");
+
+    // Parse requirements
+    const reqsList = (task.requirements || "").split(",").map(r => r.trim()).filter(Boolean);
+    const presetsMatched: string[] = [];
+    const customList: string[] = [];
+    reqsList.forEach(r => {
+      if (CANDIDATE_REQUIREMENTS_PRESETS.includes(r)) {
+        presetsMatched.push(r);
+      } else {
+        customList.push(r);
+      }
+    });
+    setSelectedReqs(presetsMatched);
+    setRequirements(customList.join(", "));
+
+    setSelectedConditions(task.conditions || []);
+    setSelectedTags(task.tags || []);
+    setOrganizerName(task.organizerName || user.contactName || "");
+    setOrganizerPhone(task.organizerPhone || user.phone || "");
+    setOrganizerEmail(task.organizerEmail || user.email || "");
+    setImageUrl(task.imageUrl || "");
+
+    setActiveTab("create");
   };
 
   const handleCloseTask = async (taskId: string) => {
@@ -724,6 +775,28 @@ export default function FundCabinet({
                       alert("Только одобренные благотворительные фонды могут составлять задания!");
                       return;
                     }
+                    setEditingTaskId(null);
+                    setTitle("");
+                    setDescription("");
+                    setCategory("Дети");
+                    setFormat("online");
+                    setDuration("one-time");
+                    setType("standard");
+                    setCity("Москва");
+                    setLocation("");
+                    setDeadline("");
+                    setEventDate("");
+                    setMaxParticipants(1);
+                    setRequirements("");
+                    setSelectedReqs([]);
+                    setHoursEstimation(4);
+                    setMaterials("");
+                    setSelectedConditions([]);
+                    setSelectedTags([]);
+                    setOrganizerName(user.contactName || "");
+                    setOrganizerPhone(user.phone || "");
+                    setOrganizerEmail(user.email || "");
+                    setImageUrl("");
                     setActiveTab("create");
                   }}
                   className={`flex-1 min-w-[100px] py-2 text-center text-xs font-bold rounded-lg transition cursor-pointer ${
@@ -731,7 +804,7 @@ export default function FundCabinet({
                   } ${activeTab === "create" ? "bg-[#FFE300] text-black shadow-sm font-black" : "text-neutral-500 hover:text-neutral-950"}`}
                 >
                   <PlusCircle className="h-3.5 w-3.5 inline mr-1" />
-                  Добавить дело
+                  {editingTaskId ? "Редактировать" : "Добавить дело"}
                 </button>
 
                 <button
@@ -844,20 +917,38 @@ export default function FundCabinet({
                                 </button>
                               )}
                               {t.status === "draft" && (
-                                <button
-                                  onClick={async () => {
-                                    await api.updateTaskStatus(t.id, TaskStatus.PENDING_MODERATION);
-                                    onRefreshAll();
-                                  }}
-                                  className="bg-[#FFE300] text-black text-[10px] font-bold px-2.5 py-1.5 rounded hover:bg-[#E5C500] transition cursor-pointer"
-                                >
-                                  На модерацию
-                                </button>
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={async () => {
+                                      await api.updateTaskStatus(t.id, TaskStatus.PENDING_MODERATION);
+                                      onRefreshAll();
+                                    }}
+                                    className="bg-[#FFE300] text-black text-[10px] font-bold px-2.5 py-1.5 rounded hover:bg-[#E5C500] transition cursor-pointer"
+                                  >
+                                    На модерацию
+                                  </button>
+                                  <button
+                                    onClick={() => startEditingTask(t)}
+                                    className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-[10px] font-bold px-2.5 py-1.5 rounded transition cursor-pointer"
+                                  >
+                                    Редактировать
+                                  </button>
+                                </div>
                               )}
-                              {t.status === "rejected" && t.moderatorComment && (
-                                <span className="text-[10px] text-neutral-405 italic block max-w-xs" title={t.moderatorComment}>
-                                  Комм: {t.moderatorComment}
-                                </span>
+                              {t.status === "rejected" && (
+                                <div className="flex flex-col gap-1.5 items-start">
+                                  <button
+                                    onClick={() => startEditingTask(t)}
+                                    className="bg-orange-50 hover:bg-[#FFE300]/20 text-orange-600 border border-orange-200 text-[10px] font-semibold uppercase px-2.5 py-1.5 rounded transition cursor-pointer"
+                                  >
+                                    ✏️ Исправить / Изменить
+                                  </button>
+                                  {t.moderatorComment && (
+                                    <span className="text-[10px] text-neutral-450 italic block max-w-xs leading-normal" title={t.moderatorComment}>
+                                      Причина: {t.moderatorComment}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -877,7 +968,7 @@ export default function FundCabinet({
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm">
                 <h3 className="font-extrabold text-base mb-4 flex items-center gap-2 text-[#000000] font-sans">
                   <Sparkles className="h-5 w-5 text-[#FFE300]" />
-                  <span>Новое волонтёрское задание компании Столото</span>
+                  <span>{editingTaskId ? "Редактирование волонтёрского задания Столото" : "Новое волонтёрское задание компании Столото"}</span>
                 </h3>
 
                 <form onSubmit={(e) => handleCreateTask(e, false)} className="space-y-6 w-full text-left">
@@ -1272,13 +1363,13 @@ export default function FundCabinet({
                       onClick={(e) => handleCreateTask(e, true)}
                       className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer"
                     >
-                      Сохранить в черновики
+                      {editingTaskId ? "Сохранить как черновик" : "Сохранить в черновики"}
                     </button>
                     <button
                       type="submit"
                       className="bg-[#FFE300] text-black hover:bg-[#E5C500] text-xs font-black px-5 py-2.5 rounded-xl shadow transition cursor-pointer font-sans"
                     >
-                      Отправить в Столото на публикацию
+                      {editingTaskId ? "Отправить исправленное на модерацию" : "Отправить в Столото на публикацию"}
                     </button>
                   </div>
                 </form>

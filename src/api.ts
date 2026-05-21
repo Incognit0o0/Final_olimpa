@@ -218,6 +218,38 @@ export const api = {
     });
   },
 
+  async updateTask(taskId: string, data: {
+    title: string;
+    description: string;
+    category: string;
+    format: "online" | "offline";
+    duration: "one-time" | "regular" | "long-term";
+    type: "standard" | "pro-bono";
+    city: string;
+    location: string;
+    deadline: string;
+    eventDate: string;
+    maxParticipants: number;
+    requirements: string;
+    hoursEstimation: number;
+    materials: string;
+    isDraft?: boolean;
+    conditions?: string[];
+    tags?: string[];
+    imageUrl?: string;
+    regStart?: string;
+    eventTime?: string;
+    organizerName?: string;
+    organizerPhone?: string;
+    organizerEmail?: string;
+    vacancies?: any[];
+  }): Promise<{ task: VolunteerTask; message: string }> {
+    return request<{ task: VolunteerTask; message: string }>(`/api/tasks/${taskId}`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
   async updateTaskStatus(taskId: string, status: TaskStatus, comment?: string): Promise<{ task: VolunteerTask; message: string }> {
     return request<{ task: VolunteerTask; message: string }>(`/api/tasks/${taskId}/status`, {
       method: "POST",
