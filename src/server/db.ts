@@ -396,9 +396,15 @@ export class DBManager {
             "badges" JSONB,
             "fundStatus" VARCHAR(50),
             "moderatorComment" TEXT,
+            "department" VARCHAR(255),
+            "position" VARCHAR(255),
             "createdAt" VARCHAR(50) NOT NULL
           );
         `);
+
+        // Migration updates for existing database stores (e.g. if the table was created on Render previously)
+        await this.pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "department" VARCHAR(255)`);
+        await this.pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "position" VARCHAR(255)`);
 
         await this.pool.query(`
           CREATE TABLE IF NOT EXISTS tasks (
